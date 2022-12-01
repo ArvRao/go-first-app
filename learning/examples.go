@@ -29,7 +29,9 @@ func main() {
 
 	// fmt.Println(rdClient.Ping(ctx).Result())
 	// PersonRedisExample(rdClient, ctx)
-	ConvertTimeZoneFn()
+	// ConvertTimeZoneFn()
+	// StructToJson()
+	StructGenericFn()
 }
 
 func loopFn() {
@@ -288,4 +290,74 @@ func ConvertTimeZoneFn() {
 	fmt.Println("IST time RFC: ", UTCTimeVh.Format(time.RFC822))
 	fmt.Println("IST time Kitchen: ", UTCTimeVh.Format(time.Kitchen))
 	fmt.Println("IST time RFCZ: ", UTCTimeVh.Format(time.RFC1123Z))
+}
+
+func StructToJson() {
+	type StockProfileStrc struct {
+		Id      int
+		ShortId string
+	}
+
+	type StockPriceStrct struct {
+		StockProfile StockProfileStrc
+		StockDate    time.Time
+		Price        int
+	}
+
+	const (
+		DDMMYYY   = "02-01-2006"
+		shortForm = "02-01-2006"
+	)
+
+	var StockPriceStrctVh StockPriceStrct
+	StockPriceStrctVh.StockProfile.Id = 1
+	StockPriceStrctVh.StockProfile.ShortId = "INFY"
+	StockPriceStrctVh.Price = 1900
+	StockPriceStrctVh.StockDate, _ = time.Parse(shortForm, "21-12-2022")
+	fmt.Println("Struct Stock Price: ", StockPriceStrctVh)
+	StockPriceStrctVhJ, err := json.Marshal(StockPriceStrctVh)
+	if err != nil {
+		fmt.Println("Json conversion error")
+		return
+	}
+	fmt.Println("Json Stock price: ", string(StockPriceStrctVhJ))
+
+	var stockPriceInst StockPriceStrct
+	json.Unmarshal(StockPriceStrctVhJ, &stockPriceInst)
+	fmt.Println("Unmarshalled values: ", stockPriceInst)
+
+	var stockPriceMap map[string]interface{}
+	json.Unmarshal(StockPriceStrctVhJ, &stockPriceMap)
+	fmt.Println("Unmarshalled map", stockPriceMap)
+}
+
+func StructGenericFn() {
+	type PersonStrc struct {
+		Name   string
+		Gender string
+	}
+
+	PersonStrcVh := PersonStrc{
+		Name:   "Arvind",
+		Gender: "Male",
+	}
+
+	var PersonArrayVh [2]string
+	PersonArrayVh[0] = "Varun"
+	PersonArrayVh[1] = "Arjun"
+
+	var RankVh int = 1
+
+	structGenericImplFn(PersonStrcVh)
+	structGenericImplFn(PersonArrayVh)
+	fmt.Println("Returned value from generic function: ", structGeneric1ImplFn(RankVh))
+}
+
+func structGenericImplFn[T any](StructArg T) {
+	fmt.Println("Generic struct: ", StructArg)
+}
+
+func structGeneric1ImplFn[T any](StructArg T) T {
+	var T1 T = StructArg
+	return T1
 }
